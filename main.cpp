@@ -1,4 +1,3 @@
-
 #include <boost/uuid/sha1.hpp>
 
 #include <cstring>
@@ -71,24 +70,28 @@ void usage(const char *argv0) {
 int main(int argc, char **argv) {
 	boost::uuids::detail::sha1 sha1;
 	std::string result;
+	const char *name = argv[0];
 
 	if ( argc != 3 ) {
-		usage(argv[0]);
+		usage(name);
 		return 1;
 	}
 
-	if ( ! std::strcmp(argv[1], "-s") ) {
-		sha1.process_bytes(argv[2], std::strlen(argv[2]));
+	const char *opts = argv[1];
+	const char *data = argv[2];
+	
+	if ( ! std::strcmp(opts, "-s") ) {
+		sha1.process_bytes(data, std::strlen(data));
 		result = to_sha1(sha1);
-	} else if ( ! std::strcmp(argv[1], "-f") ) {
-		std::ifstream file(argv[2], std::ios::binary);
+	} else if ( ! std::strcmp(opts, "-f") ) {
+		std::ifstream file(data, std::ios::binary);
 		if ( ! file ) {
 			std::cerr << "file is not exists." << std::endl;
 			return 1;
 		}
 		result = get_file_sha1(sha1, file);
 	} else {
-		usage(argv[0]);
+		usage(name);
 		return 1;
 	}
 
