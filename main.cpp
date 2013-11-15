@@ -1,9 +1,6 @@
 
 #include <boost/uuid/sha1.hpp>
 
-#include <boost/interprocess/file_mapping.hpp>
-#include <boost/interprocess/mapped_region.hpp>
-
 #include <cstring>
 #include <string>
 #include <sstream>
@@ -32,7 +29,11 @@ std::string to_sha1(boost::uuids::detail::sha1 &sha1) {
 			const char *hptr = bin;
 
 			for (int i = 0; i < sizeof(bin); i++) {
-				os << std::setfill('0') << std::setw(2) << std::hex << (unsigned int)*hptr;
+				os << std::setfill('0')
+					<< std::setw(2)
+					<< std::hex
+					<< ((unsigned int)(unsigned char)*hptr)
+				;
 				++hptr;
 			}
 			return os.str();
@@ -45,10 +46,14 @@ std::string to_sha1(boost::uuids::detail::sha1 &sha1) {
 /***************************************************************************/
 
 std::string get_file_sha1(boost::uuids::detail::sha1 &sha1, const std::string &fname) {
-	boost::interprocess::file_mapping file(fname.c_str(), boost::interprocess::read_only);
-	boost::interprocess::mapped_region region(file, boost::interprocess::read_only);
+	std::ifstream file(fname.c_str(), std::ios::binary);
+	enum { buffer_size = 1024*64 };
+	char buffer[buffer_size] = {0};
 
-	sha1.process_bytes(region.get_address(), region.get_size());
+	std::size_t rd = 0;
+	while ( (rd = file.read(buffer, buffer_size).gcount()) ) {
+		sha1.process_bytes(buffer, rd);
+	}
 
 	return to_sha1(sha1);
 }
