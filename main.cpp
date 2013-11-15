@@ -45,8 +45,7 @@ std::string to_sha1(boost::uuids::detail::sha1 &sha1) {
 
 /***************************************************************************/
 
-std::string get_file_sha1(boost::uuids::detail::sha1 &sha1, const std::string &fname) {
-	std::ifstream file(fname.c_str(), std::ios::binary);
+std::string get_file_sha1(boost::uuids::detail::sha1 &sha1, std::ifstream &file) {
 	enum { buffer_size = 1024*64 };
 	char buffer[buffer_size] = {0};
 
@@ -82,12 +81,12 @@ int main(int argc, char **argv) {
 		sha1.process_bytes(argv[2], std::strlen(argv[2]));
 		result = to_sha1(sha1);
 	} else if ( ! std::strcmp(argv[1], "-f") ) {
-		std::ifstream file(argv[2]);
+		std::ifstream file(argv[2], std::ios::binary);
 		if ( ! file ) {
 			std::cerr << "file is not exists." << std::endl;
 			return 1;
 		}
-		result = get_file_sha1(sha1, argv[2]);
+		result = get_file_sha1(sha1, file);
 	} else {
 		usage(argv[0]);
 		return 1;
