@@ -68,37 +68,24 @@ int main(int argc, char **argv) {
 	boost::uuids::detail::sha1 sha1;
 	std::string result;
 
-	enum mode {
-		 mode_string
-		,mode_file
-		,mode_unknown
-	};
-	mode m = mode_unknown;
-
 	if ( argc != 3 ) {
 		usage(argv[0]);
 		return 1;
 	}
 
 	if ( ! std::strcmp(argv[1], "-s") ) {
-		m = mode_string;
-	} else if ( ! std::strcmp(argv[1], "-f") ) {
-		m = mode_file;
-	} else {
-		usage(argv[0]);
-		return 1;
-	}
-
-	if ( m == mode_string ) {
 		sha1.process_bytes(argv[2], std::strlen(argv[2]));
 		result = to_sha1(sha1);
-	} else {
+	} else if ( ! std::strcmp(argv[1], "-f") ) {
 		std::ifstream file(argv[2]);
 		if ( ! file ) {
 			std::cerr << "file is not exists." << std::endl;
 			return 1;
 		}
 		result = get_file_sha1(sha1, argv[2]);
+	} else {
+		usage(argv[0]);
+		return 1;
 	}
 
 	std::cout << result << std::endl;
