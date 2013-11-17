@@ -9,7 +9,7 @@
 
 /***************************************************************************/
 
-std::string to_sha1(boost::uuids::detail::sha1 &sha1) {
+std::string sha1_to_string(boost::uuids::detail::sha1 &sha1) {
 	unsigned int digest[5] = {0};
 	sha1.get_digest(digest);
 
@@ -53,7 +53,7 @@ std::string get_file_sha1(boost::uuids::detail::sha1 &sha1, std::ifstream &file)
 		sha1.process_bytes(buffer, rd);
 	}
 
-	return to_sha1(sha1);
+	return sha1_to_string(sha1);
 }
 
 /***************************************************************************/
@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
 	
 	if ( ! std::strcmp(opts, "-s") ) {
 		sha1.process_bytes(data, std::strlen(data));
-		result = to_sha1(sha1);
+		result = sha1_to_string(sha1);
 	} else if ( ! std::strcmp(opts, "-f") ) {
 		std::ifstream file(data, std::ios::binary);
 		if ( ! file ) {
