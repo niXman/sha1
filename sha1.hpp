@@ -29,47 +29,66 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "sha1.hpp"
-#include <iostream>
+#include <boost/uuid/sha1.hpp>
+
+#include <cstring>
+#include <string>
+#include <sstream>
+#include <fstream>
+#include <iomanip>
 
 /***************************************************************************/
 
-void usage(const char *argv0) {
-	const char *p = std::strrchr(argv0, '/');
-	const char *pn = (p != 0 ? p+1 : argv0);
+std::string sha1_to_string(boost::uuids::detail::sha1 &sha1) {
+	unsigned int digest[5] = {0};
+	sha1.get_digest(digest);
 
-	std::cerr << "usage:\n\t" << pn << " [-s string] | [-f filename]" << std::endl;
+	char bin[sizeof(digest)];
+	const char* tmp = reinterpret_cast<char*>(&digest[0]);
+	for ( size_t i = 0; i < sizeof(digest)/sizeof(digest[0]); ++i ) {
+		bin[i * 4    ] = tmp[i * 4 + 3];
+		bin[i * 4 + 1] = tmp[i * 4 + 2];
+		bin[i * 4 + 2] = tmp[i * 4 + 1];
+		bin[i * 4 + 3] = tmp[i * 4    ];
+	}
+
+	std::ostringstream os;
+	const char *hptr = bin;
+
+	for (int i = 0; i < sizeof(bin); i++) {
+		os << std::setfill('0')
+		<< std::setw(2)
+		<< std::hex
+		<< ((unsigned int)(unsigned char)*hptr)
+		;
+		++hptr;
+	}
+
+	return os.str();
 }
 
 /***************************************************************************/
 
-int main(int argc, char **argv) {
-	std::string result;
-	const char *name = argv[0];
+std::string get_string_sha1(const std::string &str) {
+	boost::uuids::detail::sha1 sha1;
+	sha1.process_bytes(str.c_str(), str.length());
 
-	if ( argc != 3 ) {
-		usage(name);
-		return 1;
+	return sha1_to_string(sha1);
+}
+
+/***************************************************************************/
+
+std::string get_file_sha1(std::ifstream &file) {
+	boost::uuids::detail::sha1 sha1;
+	enum { buffer_size = 1024*64 };
+	char buffer[buffer_size] = {0};
+
+	std::size_t rd = 0;
+	while ( (rd = file.read(buffer, buffer_size).gcount()) ) {
+		sha1.process_bytes(buffer, rd);
 	}
 
-	const char *opts = argv[1];
-	const char *data = argv[2];
-
-	if ( std::strcmp(opts, "-s") == 0 ) {
-		result = get_string_sha1(data);
-	} else if ( ! std::strcmp(opts, "-f") ) {
-		std::ifstream file(data, std::ios::binary);
-		if ( ! file ) {
-			std::cerr << "file is not exists." << std::endl;
-			return 1;
-		}
-		result = get_file_sha1(file);
-	} else {
-		usage(name);
-		return 1;
-	}
-
-	std::cout << result << std::endl;
+	return sha1_to_string(sha1);
 }
 
 /***************************************************************************/
