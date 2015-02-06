@@ -23,4 +23,4 @@ install:
 
 script:
   - cd $TRAVIS_BUILD_DIR
-  - SUMM1=$(sha1sum -b main);SUMM2=$(./main -f main);[[ $SUMM1 == $SUMM2 ]] && exit 0 || exit 1;
+  - SUMM1=$(sha1sum -b main | sed 's|\ \*main||');SUMM2=$(./main -f main);$([[ $SUMM1 == $SUMM2 ]] && exit 0 || exit 1)
