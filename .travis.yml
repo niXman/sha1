@@ -1,0 +1,26 @@
+language: cpp
+
+os:
+  - linux
+
+compiler:
+  - gcc
+
+notifications:
+ email:
+   on_success: change
+   on_failure: always
+
+before_install:
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - sudo apt-get update
+  - if [ "$CXX" = "g++" ]; then sudo apt-get install g++-4.8 libboost-dev; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+
+install:
+  - cd $TRAVIS_BUILD_DIR
+  - g++ main.cpp -omain
+
+script:
+  - cd $TRAVIS_BUILD_DIR
+  - SUMM1=$(sha1summ main);SUMM2=$(./main -f main);[[ $SUMM1 == $SUMM2 ]] && exit 0 || exit 1;
