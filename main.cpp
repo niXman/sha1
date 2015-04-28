@@ -1,5 +1,5 @@
 
-// Copyright (c) 2014, niXman (i dotty nixman doggy gmail dotty com)
+// Copyright (c) 2014,2015, niXman (i dotty nixman doggy gmail dotty com)
 // All rights reserved.
 //
 // This file is part of sha1(https://github.com/niXman/sha1) project.
@@ -31,6 +31,7 @@
 
 #include "sha1.hpp"
 #include <iostream>
+#include <cstring>
 
 /***************************************************************************/
 

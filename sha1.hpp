@@ -1,5 +1,5 @@
 
-// Copyright (c) 2014, niXman (i dotty nixman doggy gmail dotty com)
+// Copyright (c) 2014,2015, niXman (i dotty nixman doggy gmail dotty com)
 // All rights reserved.
 //
 // This file is part of sha1(https://github.com/niXman/sha1) project.
@@ -31,40 +31,33 @@
 
 #include <boost/uuid/sha1.hpp>
 
-#include <cstring>
 #include <string>
-#include <sstream>
 #include <fstream>
-#include <iomanip>
+#include <cstdio>
 
 /***************************************************************************/
 
 std::string sha1_to_string(boost::uuids::detail::sha1 &sha1) {
 	unsigned int digest[5] = {0};
+	const char *dig_it = reinterpret_cast<const char*>(&digest[0]);
 	sha1.get_digest(digest);
 
-	char bin[sizeof(digest)];
-	const char* tmp = reinterpret_cast<char*>(&digest[0]);
-	for ( size_t i = 0; i < sizeof(digest)/sizeof(digest[0]); ++i ) {
-		bin[i * 4    ] = tmp[i * 4 + 3];
-		bin[i * 4 + 1] = tmp[i * 4 + 2];
-		bin[i * 4 + 2] = tmp[i * 4 + 1];
-		bin[i * 4 + 3] = tmp[i * 4    ];
+	char bin[sizeof(digest)] = {0};
+	char *bin_it = &bin[0];
+	char *bin_end= &bin[sizeof(digest)];
+	for ( std::size_t i = 0; i < sizeof(digest)/sizeof(digest[0]); ++i ) {
+		bin[i * 4    ] = dig_it[i * 4 + 3];
+		bin[i * 4 + 1] = dig_it[i * 4 + 2];
+		bin[i * 4 + 2] = dig_it[i * 4 + 1];
+		bin[i * 4 + 3] = dig_it[i * 4    ];
+	}
+	char out[(sizeof(digest)*2)+1] = {0};
+	char *out_it = &out[0];
+	for ( ;bin_it != bin_end; ++bin_it, out_it += 2) {
+		std::sprintf(out_it, "%02x", ((unsigned int)(unsigned char)*bin_it));
 	}
 
-	std::ostringstream os;
-	const char *hptr = bin;
-
-	for (int i = 0; i < sizeof(bin); i++) {
-		os << std::setfill('0')
-		<< std::setw(2)
-		<< std::hex
-		<< ((unsigned int)(unsigned char)*hptr)
-		;
-		++hptr;
-	}
-
-	return os.str();
+	return out;
 }
 
 /***************************************************************************/
@@ -78,7 +71,7 @@ std::string get_string_sha1(const std::string &str) {
 
 /***************************************************************************/
 
-std::string get_file_sha1(std::ifstream &file) {
+std::string get_file_sha1(std::istream &file) {
 	boost::uuids::detail::sha1 sha1;
 	enum { buffer_size = 1024*64 };
 	char buffer[buffer_size] = {0};
