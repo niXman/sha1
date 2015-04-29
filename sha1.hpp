@@ -46,10 +46,10 @@ std::string sha1_to_string(boost::uuids::detail::sha1 &sha1) {
 	char *bin_it = &bin[0];
 	char *bin_end= &bin[sizeof(digest)];
 	for ( std::size_t i = 0; i < sizeof(digest)/sizeof(digest[0]); ++i ) {
-		bin[i * 4    ] = dig_it[i * 4 + 3];
-		bin[i * 4 + 1] = dig_it[i * 4 + 2];
-		bin[i * 4 + 2] = dig_it[i * 4 + 1];
-		bin[i * 4 + 3] = dig_it[i * 4    ];
+		bin[i*4+0] = dig_it[i*4+3];
+		bin[i*4+1] = dig_it[i*4+2];
+		bin[i*4+2] = dig_it[i*4+1];
+		bin[i*4+3] = dig_it[i*4+0];
 	}
 	char out[(sizeof(digest)*2)+1] = {0};
 	char *out_it = &out[0];
