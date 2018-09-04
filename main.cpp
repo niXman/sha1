@@ -45,7 +45,6 @@ void usage(const char *argv0) {
 /***************************************************************************/
 
 int main(int argc, char **argv) {
-	std::string result;
 	const char *name = argv[0];
 
 	if ( argc != 3 ) {
@@ -57,20 +56,18 @@ int main(int argc, char **argv) {
 	const char *data = argv[2];
 
 	if ( std::strcmp(opts, "-s") == 0 ) {
-		result = get_string_sha1(data);
-	} else if ( ! std::strcmp(opts, "-f") ) {
+		std::cout << get_string_sha1(data) << std::endl;
+	} else if ( std::strcmp(opts, "-f") == 0 ) {
 		std::ifstream file(data, std::ios::binary);
-		if ( ! file ) {
+		if ( !file ) {
 			std::cerr << "file is not exists." << std::endl;
 			return 1;
 		}
-		result = get_file_sha1(file);
+		std::cout << get_file_sha1(file) << std::endl;
 	} else {
 		usage(name);
 		return 1;
 	}
-
-	std::cout << result << std::endl;
 }
 
 /***************************************************************************/
